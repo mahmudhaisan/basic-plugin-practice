@@ -28,14 +28,17 @@ class BasicPlugin
 {
     function activate()
     {
-        // refresh database table
-        flush_rewrite_rules();
+
+        require_once(plugin_dir_path(__FILE__) . 'includes/plugin-activation-class.php');
+        //calling static method
+        activate::activation();
     }
 
     function deactivate()
     {
-        // refresh database table
-        flush_rewrite_rules();
+        require_once(plugin_dir_path(__FILE__) . 'includes/plugin-deactivation-class.php');
+        //calling static method
+        activate::deactivation();
     }
 
 
@@ -47,7 +50,7 @@ class BasicPlugin
     }
 
     // enqueue files
-    static function enqueue_files() // changed this method to static keyword
+    function enqueue_files()
     {
         // enqueue css file
         wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . '/assets/css/style.css', array(), false, 'all');
@@ -56,13 +59,13 @@ class BasicPlugin
         wp_enqueue_script('custom-script', plugin_dir_url(__FILE__) . '/assets/js/script.js', array(), false, true);
     }
 
-    static function enqueue_files_to_dashboard()
+    function enqueue_files_to_dashboard()
     {
         // add enqueue files to admin dashboard
-        add_action('admin_enqueue_scripts', array('BasicPlugin', 'enqueue_files')); // change $this to BasicPlugin as of static keyword
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_files'));
     }
 }
 
+$basicPlugin = new BasicPlugin;
 
-// call static method
-BasicPlugin::enqueue_files_to_dashboard();
+register_activation_hook(__FILE__, array($basicPlugin, 'activate'));
