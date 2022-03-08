@@ -38,23 +38,16 @@ class BasicPlugin
         flush_rewrite_rules();
     }
 
-    function custom_post_book()
-    {
-        // register custom post type
-        register_post_type('book', array(
-            'label' => 'book',
-            'public' => true
-        ));
-    }
+
     // add book post type on dashboard
     function add_post_type_to_menu()
     {
-        // triger custom post to admin menu
+        // trigger custom post to admin menu
         add_action('init', array($this, 'custom_post_book'));
     }
 
     // enqueue files
-    function enqueue_files()
+    static function enqueue_files() // changed this method to static keyword
     {
         // enqueue css file
         wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . '/assets/css/style.css', array(), false, 'all');
@@ -63,20 +56,13 @@ class BasicPlugin
         wp_enqueue_script('custom-script', plugin_dir_url(__FILE__) . '/assets/js/script.js', array(), false, true);
     }
 
-    function enqueue_files_to_dashboard()
+    static function enqueue_files_to_dashboard()
     {
         // add enqueue files to admin dashboard
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_files'));
+        add_action('admin_enqueue_scripts', array('BasicPlugin', 'enqueue_files')); // change $this to BasicPlugin as of static keyword
     }
 }
 
-// initailize class
-$basicPlugin = new BasicPlugin;
-$basicPlugin->add_post_type_to_menu();
-$basicPlugin->enqueue_files_to_dashboard();
 
-// register activation hook
-register_activation_hook(__FILE__, array($basicPlugin, 'activate'));
-
-// register activation hook
-register_activation_hook(__FILE__, array($basicPlugin, 'deactivate'));
+// call static method
+BasicPlugin::enqueue_files_to_dashboard();
