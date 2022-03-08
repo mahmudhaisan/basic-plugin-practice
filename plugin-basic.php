@@ -25,43 +25,40 @@ if (!defined('ABSPATH')) {
 
 class BasicPlugin
 {
-
-    function __construct()
-    {
-        // adding custom post 'book' to wordpress dashboard
-        add_action('init', array($this, 'custom_post'));
-    }
-
     function activate()
     {
-        // in case plugin activation get failed
-        $this->activate();
-        //refresh db
+        // refresh database table
         flush_rewrite_rules();
     }
 
     function deactivate()
     {
-        //refresh databse upon in deactivation
+        // refresh database table
         flush_rewrite_rules();
     }
 
-
-    function custom_post()
+    function custom_post_book()
     {
-        // registering custom post type
+        // create custom post type
         register_post_type('book', array(
             'label' => 'book',
-            'public' => true,
+            'public' => true
         ));
+    }
+
+
+    function add_post_type_to_menu()
+    {
+        // triger custom post to admin menu
+        add_action('init', array($this, 'custom_post_book'));
     }
 }
 
-// initializing basicPlugin class
-$basicInit = new BasicPlugin();
+$basicPlugin = new BasicPlugin;
+$basicPlugin->add_post_type_to_menu();
 
-// activation hook
-register_activation_hook(__FILE__, array($basicInit, 'activate'));
+// register activation hook
+register_activation_hook(__FILE__, array($basicPlugin, 'activate'));
 
-// deactivation hook
-register_activation_hook(__FILE__, array($basicInit, 'deactivate'));
+// register activation hook
+register_activation_hook(__FILE__, array($basicPlugin, 'deactivate'));
