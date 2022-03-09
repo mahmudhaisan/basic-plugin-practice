@@ -15,25 +15,29 @@
  * Text Domain: Plba
  **/
 
-
-
 // defining the Abspath
 if (!defined('ABSPATH')) {
     die;
 }
 
-
-
 class BasicPlugin
 {
+    function register()
+    {
+        $this->add_to_admin_menu();
+        $this->enqueue_files_to_dashboard();
+    }
+
+
+    //activate function
     function activate()
     {
-
         require_once(plugin_dir_path(__FILE__) . 'includes/plugin-activation-class.php');
         //calling static method
         activate::activation();
     }
 
+    // deactivate function
     function deactivate()
     {
         require_once(plugin_dir_path(__FILE__) . 'includes/plugin-deactivation-class.php');
@@ -41,13 +45,26 @@ class BasicPlugin
         activate::deactivation();
     }
 
-
-    // add book post type on dashboard
-    function add_post_type_to_menu()
+    // menu page setup
+    function admin_menu_dashboard()
     {
-        // trigger custom post to admin menu
-        add_action('init', array($this, 'custom_post_book'));
+        add_menu_page(
+            'Basic Plugin',
+            'Basic Plugin',
+            'manage_options',
+            'basic_plugin',
+            array($this, 'add_to_admin_menu'),
+            'dashicons-marker',
+            17
+        );
     }
+
+    // adding action
+    function add_to_admin_menu()
+    {
+        add_action('admin_menu', array($this, 'admin_menu_dashboard'));
+    }
+
 
     // enqueue files
     function enqueue_files()
@@ -59,13 +76,15 @@ class BasicPlugin
         wp_enqueue_script('custom-script', plugin_dir_url(__FILE__) . '/assets/js/script.js', array(), false, true);
     }
 
+    // add enqueue files to admin dashboard
     function enqueue_files_to_dashboard()
     {
-        // add enqueue files to admin dashboard
         add_action('admin_enqueue_scripts', array($this, 'enqueue_files'));
     }
 }
 
 $basicPlugin = new BasicPlugin;
+$basicPlugin->register();
 
 register_activation_hook(__FILE__, array($basicPlugin, 'activate'));
+register_activation_hook(__FILE__, array($basicPlugin, 'deactivate'));
